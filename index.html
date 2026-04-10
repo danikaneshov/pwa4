@@ -1,0 +1,1572 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#0d0d0d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ДамДым">
+<title>ДамДым — кальян на дом</title>
+<link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;600;700&family=Onest:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0d0d0d;
+  --bg2: #161616;
+  --bg3: #1f1f1f;
+  --surface: #252525;
+  --border: rgba(255,255,255,0.08);
+  --border2: rgba(255,255,255,0.14);
+  --text: #f0ede8;
+  --text2: #a09d98;
+  --text3: #5c5a57;
+  --accent: #c8a96e;
+  --accent2: #e8c98e;
+  --accent-bg: rgba(200,169,110,0.1);
+  --accent-border: rgba(200,169,110,0.25);
+  --red: #e05c5c;
+  --green: #5cb87a;
+  --blue: #5c8fe0;
+  --r: 16px;
+  --r2: 24px;
+  --font-head: 'Unbounded', sans-serif;
+  --font-body: 'Onest', sans-serif;
+  --bottom-nav: 80px;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:16px;line-height:1.5;overflow:hidden}
+button{cursor:pointer;border:none;background:none;font-family:inherit;color:inherit}
+input,textarea,select{font-family:inherit;color:inherit}
+a{color:inherit;text-decoration:none}
+
+/* SCREENS */
+.screen{position:fixed;inset:0;overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column;opacity:0;transform:translateX(20px);pointer-events:none;transition:opacity .3s ease,transform .3s ease;background:var(--bg)}
+.screen.active{opacity:1;transform:translateX(0);pointer-events:auto}
+.screen.exit{opacity:0;transform:translateX(-20px)}
+
+/* SCROLLABLE CONTENT AREA */
+.content{flex:1;padding:0 20px;padding-bottom:calc(var(--bottom-nav) + var(--safe-bottom) + 24px)}
+.content-full{flex:1;overflow-y:auto;padding-bottom:calc(var(--bottom-nav) + var(--safe-bottom) + 24px)}
+
+/* TOP BAR */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 20px 12px;position:sticky;top:0;z-index:10;background:linear-gradient(to bottom,var(--bg) 70%,transparent)}
+.topbar-title{font-family:var(--font-head);font-size:17px;font-weight:600;letter-spacing:-0.3px}
+.topbar-back{width:40px;height:40px;display:flex;align-items:center;justify-content:center;background:var(--surface);border-radius:12px}
+
+/* BOTTOM NAV */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(13,13,13,0.9);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid var(--border);padding:10px 0 calc(10px + var(--safe-bottom));display:flex;justify-content:space-around}
+.nav-btn{display:flex;flex-direction:column;align-items:center;gap:4px;padding:4px 16px;border-radius:12px;transition:all .2s;font-size:10px;font-weight:500;color:var(--text3);letter-spacing:0.3px}
+.nav-btn.active{color:var(--accent)}
+.nav-btn svg{width:22px;height:22px;transition:transform .2s}
+.nav-btn.active svg{transform:scale(1.1)}
+.nav-badge{position:absolute;top:-3px;right:-3px;width:8px;height:8px;background:var(--red);border-radius:50%;border:2px solid var(--bg)}
+
+/* BUTTONS */
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:0 24px;height:56px;border-radius:var(--r);font-family:var(--font-body);font-size:15px;font-weight:500;transition:all .18s;letter-spacing:0.1px}
+.btn-primary{background:var(--accent);color:#1a1200;font-weight:600}
+.btn-primary:active{transform:scale(0.97);background:var(--accent2)}
+.btn-ghost{background:var(--surface);color:var(--text);border:1px solid var(--border)}
+.btn-ghost:active{transform:scale(0.97)}
+.btn-full{width:100%}
+.btn-sm{height:40px;padding:0 16px;font-size:13px;border-radius:10px}
+
+/* CARDS */
+.card{background:var(--surface);border-radius:var(--r2);border:1px solid var(--border);padding:20px}
+.card+.card{margin-top:12px}
+
+/* INPUTS */
+.input-group{margin-bottom:16px}
+.input-label{font-size:12px;color:var(--text2);margin-bottom:6px;letter-spacing:0.3px;font-weight:500}
+.input-field{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:0 16px;height:52px;font-size:16px;color:var(--text);transition:border-color .2s;outline:none}
+.input-field:focus{border-color:var(--accent-border)}
+.input-field::placeholder{color:var(--text3)}
+textarea.input-field{height:90px;padding:14px 16px;resize:none}
+
+/* CHIPS / TAGS */
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.chip{padding:6px 14px;border-radius:20px;font-size:13px;border:1px solid var(--border);color:var(--text2);cursor:pointer;transition:all .15s;white-space:nowrap}
+.chip.active{background:var(--accent-bg);border-color:var(--accent-border);color:var(--accent)}
+
+/* BADGE */
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;letter-spacing:0.5px}
+.badge-gold{background:var(--accent-bg);color:var(--accent);border:1px solid var(--accent-border)}
+.badge-green{background:rgba(92,184,122,0.12);color:var(--green);border:1px solid rgba(92,184,122,0.25)}
+.badge-red{background:rgba(224,92,92,0.12);color:var(--red);border:1px solid rgba(224,92,92,0.25)}
+.badge-blue{background:rgba(92,143,224,0.12);color:var(--blue);border:1px solid rgba(92,143,224,0.25)}
+
+/* DIVIDER */
+.divider{height:1px;background:var(--border);margin:20px 0}
+
+/* SLIDER */
+.slider-wrap{position:relative;padding:4px 0}
+.slider-input{-webkit-appearance:none;appearance:none;width:100%;height:4px;background:var(--bg3);border-radius:2px;outline:none;cursor:pointer}
+.slider-input::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:var(--accent);cursor:pointer;box-shadow:0 0 0 3px rgba(200,169,110,0.2)}
+.slider-labels{display:flex;justify-content:space-between;margin-top:8px}
+.slider-labels span{font-size:11px;color:var(--text3)}
+
+/* SECTION TITLE */
+.section-title{font-family:var(--font-head);font-size:13px;font-weight:600;color:var(--text2);letter-spacing:1px;text-transform:uppercase;margin-bottom:16px}
+
+/* TOAST */
+.toast{position:fixed;bottom:calc(var(--bottom-nav) + var(--safe-bottom) + 16px);left:50%;transform:translateX(-50%) translateY(20px);background:var(--surface);border:1px solid var(--border2);border-radius:var(--r);padding:12px 20px;font-size:14px;white-space:nowrap;z-index:999;opacity:0;transition:all .3s;pointer-events:none;max-width:90vw}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.success{border-color:rgba(92,184,122,0.4);color:var(--green)}
+.toast.error{border-color:rgba(224,92,92,0.4);color:var(--red)}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;backdrop-filter:blur(4px)}
+.modal-overlay.open{opacity:1;pointer-events:auto}
+.modal-sheet{background:var(--bg2);border-radius:var(--r2) var(--r2) 0 0;width:100%;max-width:600px;padding:0 20px 32px;transform:translateY(100%);transition:transform .35s cubic-bezier(.32,.72,0,1)}
+.modal-overlay.open .modal-sheet{transform:translateY(0)}
+.modal-handle{width:36px;height:4px;background:var(--border2);border-radius:2px;margin:14px auto 24px}
+
+/* LOADING */
+.spinner{width:40px;height:40px;border:2px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* LOGO */
+.logo{font-family:var(--font-head);font-weight:700;letter-spacing:-1px}
+.logo-accent{color:var(--accent)}
+
+/* STATUS INDICATOR */
+.status-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px}
+.status-new .status-dot{background:var(--accent);box-shadow:0 0 0 3px rgba(200,169,110,0.2)}
+.status-accepted .status-dot{background:var(--blue);box-shadow:0 0 0 3px rgba(92,143,224,0.2)}
+.status-courier .status-dot{background:var(--green);box-shadow:0 0 0 3px rgba(92,184,122,0.2);animation:pulse 1.5s infinite}
+.status-done .status-dot{background:var(--text3)}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 3px rgba(92,184,122,0.2)}50%{box-shadow:0 0 0 6px rgba(92,184,122,0.08)}}
+
+/* PROGRESS BAR (loyalty) */
+.progress-bar{height:4px;background:var(--bg3);border-radius:2px;overflow:hidden;margin-top:10px}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:2px;transition:width .6s ease}
+
+/* CONFETTI CANVAS */
+#confetti-canvas{position:fixed;inset:0;pointer-events:none;z-index:300}
+
+/* FLAVOR GRID */
+.flavor-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.flavor-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:12px 8px;text-align:center;cursor:pointer;transition:all .15s;font-size:13px;color:var(--text2)}
+.flavor-card.active{background:var(--accent-bg);border-color:var(--accent-border);color:var(--accent)}
+.flavor-card .flavor-emoji{font-size:22px;display:block;margin-bottom:6px}
+
+/* HOOKAH ICON ANIMATION */
+.smoke-anim{animation:smoke 3s ease-in-out infinite}
+@keyframes smoke{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-8px) rotate(2deg)}}
+
+/* TIER CARD */
+.tier-progress{display:flex;flex-direction:column;gap:4px}
+.tier-name{font-family:var(--font-head);font-size:20px;font-weight:700;color:var(--accent)}
+.tier-sub{font-size:13px;color:var(--text2)}
+
+/* PROMO INPUT */
+.promo-wrap{display:flex;gap:8px}
+.promo-wrap .input-field{flex:1}
+
+/* ORDER STEP INDICATOR */
+.steps{display:flex;gap:0;margin-bottom:28px}
+.step{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;position:relative}
+.step:not(:last-child)::after{content:'';position:absolute;top:14px;left:calc(50% + 14px);right:calc(-50% + 14px);height:1px;background:var(--border)}
+.step.done:not(:last-child)::after,.step.active:not(:last-child)::after{background:var(--accent)}
+.step-circle{width:28px;height:28px;border-radius:50%;border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--text3);background:var(--bg3);transition:all .3s;z-index:1}
+.step.active .step-circle{border-color:var(--accent);color:var(--accent);background:var(--accent-bg)}
+.step.done .step-circle{background:var(--accent);border-color:var(--accent);color:#1a1200}
+.step-label{font-size:10px;color:var(--text3);letter-spacing:0.3px;text-align:center}
+.step.active .step-label{color:var(--accent)}
+
+/* HOOKAH COUNT BTN */
+.count-control{display:flex;align-items:center;gap:16px}
+.count-btn{width:36px;height:36px;border-radius:10px;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--text);transition:all .15s}
+.count-btn:active{transform:scale(0.92)}
+.count-val{font-family:var(--font-head);font-size:20px;font-weight:600;min-width:24px;text-align:center}
+
+/* HOOKAH CONFIG CARD */
+.hookah-config{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r2);padding:18px;margin-bottom:12px}
+.hookah-config-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.hookah-num{font-family:var(--font-head);font-size:13px;font-weight:600;color:var(--accent)}
+
+/* PRICE ROW */
+.price-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)}
+.price-row:last-child{border-bottom:none}
+.price-label{font-size:14px;color:var(--text2)}
+.price-value{font-size:14px;font-weight:500}
+.price-total{font-size:18px;font-weight:600;color:var(--accent)}
+.price-old{font-size:13px;color:var(--text3);text-decoration:line-through;margin-right:8px}
+
+/* LOYALTY LEVELS ROW */
+.levels-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.levels-row::-webkit-scrollbar{display:none}
+.level-card{min-width:110px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:12px;cursor:default;transition:border-color .2s}
+.level-card.current{border-color:var(--accent-border)}
+.level-icon{font-size:20px;margin-bottom:6px}
+.level-title{font-size:11px;font-weight:600;font-family:var(--font-head);color:var(--text);margin-bottom:2px}
+.level-disc{font-size:11px;color:var(--accent)}
+.level-req{font-size:10px;color:var(--text3);margin-top:2px}
+
+/* AUTH SCREEN */
+.auth-logo{text-align:center;padding:60px 0 48px}
+.auth-logo .logo{font-size:32px}
+.auth-logo .tagline{font-size:14px;color:var(--text2);margin-top:8px}
+.auth-logo .smoke-icon{font-size:64px;display:block;margin-bottom:16px}
+.tab-switcher{display:flex;background:var(--bg3);border-radius:var(--r);padding:4px;margin-bottom:24px}
+.tab-btn{flex:1;height:40px;border-radius:10px;font-size:14px;font-weight:500;color:var(--text2);transition:all .2s}
+.tab-btn.active{background:var(--surface);color:var(--text);border:1px solid var(--border2)}
+
+/* HOME HERO */
+.hero{padding:24px 0 20px;display:flex;flex-direction:column;gap:12px}
+.hero-greeting{font-size:14px;color:var(--text2)}
+.hero-name{font-family:var(--font-head);font-size:24px;font-weight:700;line-height:1.2;margin-top:4px}
+.discount-pill{display:inline-flex;align-items:center;gap:6px;background:var(--accent-bg);border:1px solid var(--accent-border);border-radius:20px;padding:5px 12px;font-size:13px;color:var(--accent);margin-top:4px;width:fit-content}
+.discount-pill svg{width:14px;height:14px}
+
+/* TARIFF CARDS */
+.tariff-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.tariff-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:18px 14px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.tariff-card.featured{border-color:var(--accent-border);background:var(--accent-bg)}
+.tariff-card.selected{border-color:var(--accent);background:var(--accent-bg)}
+.tariff-card .tariff-icon{font-size:28px;margin-bottom:10px;display:block}
+.tariff-card .tariff-name{font-family:var(--font-head);font-size:14px;font-weight:700;margin-bottom:4px}
+.tariff-card .tariff-desc{font-size:11px;color:var(--text2);margin-bottom:12px;line-height:1.4}
+.tariff-card .tariff-price{font-family:var(--font-head);font-size:18px;font-weight:700;color:var(--accent)}
+.tariff-card .tariff-orig{font-size:12px;color:var(--text3);text-decoration:line-through}
+.tariff-badge{position:absolute;top:10px;right:10px;background:var(--accent);color:#1a1200;font-size:9px;font-weight:700;padding:3px 8px;border-radius:20px;font-family:var(--font-head);letter-spacing:0.5px}
+.tariff-full{grid-column:1/-1}
+
+/* FEATURE LIST */
+.feature-list{display:flex;flex-direction:column;gap:10px;margin-bottom:20px}
+.feature-item{display:flex;align-items:center;gap:12px;font-size:14px;color:var(--text2)}
+.feature-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);flex-shrink:0}
+
+/* STATUS CARD */
+.status-card{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r2);padding:20px;margin-bottom:12px}
+.status-timeline{display:flex;flex-direction:column;gap:0;margin-top:16px}
+.timeline-item{display:flex;gap:14px;padding-bottom:20px;position:relative}
+.timeline-item:last-child{padding-bottom:0}
+.timeline-item:not(:last-child)::before{content:'';position:absolute;left:11px;top:26px;bottom:0;width:1px;background:var(--border)}
+.timeline-dot{width:24px;height:24px;border-radius:50%;border:1px solid var(--border2);background:var(--bg3);display:flex;align-items:center;justify-content:center;flex-shrink:0;z-index:1}
+.timeline-dot.done{background:var(--green);border-color:var(--green)}
+.timeline-dot.active{background:var(--accent);border-color:var(--accent);animation:pulse2 1.5s infinite}
+@keyframes pulse2{0%,100%{box-shadow:0 0 0 3px rgba(200,169,110,0.2)}50%{box-shadow:0 0 0 8px rgba(200,169,110,0.05)}}
+.timeline-content{padding-top:2px}
+.timeline-title{font-size:14px;font-weight:500;color:var(--text)}
+.timeline-sub{font-size:12px;color:var(--text3);margin-top:2px}
+
+/* HISTORY CARD */
+.history-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:14px;display:flex;gap:14px;align-items:flex-start}
+.history-icon{width:40px;height:40px;border-radius:12px;background:var(--accent-bg);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+
+/* PROFILE */
+.profile-header{display:flex;flex-direction:column;align-items:center;padding:32px 0 24px;text-align:center}
+.avatar{width:72px;height:72px;border-radius:50%;background:var(--accent-bg);border:2px solid var(--accent-border);display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-size:24px;font-weight:700;color:var(--accent);margin-bottom:12px}
+.profile-name{font-family:var(--font-head);font-size:20px;font-weight:600}
+.profile-phone{font-size:14px;color:var(--text2);margin-top:4px}
+
+/* ADMIN */
+.admin-stat{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:14px}
+.admin-stat-val{font-family:var(--font-head);font-size:22px;font-weight:700;color:var(--accent)}
+.admin-stat-label{font-size:12px;color:var(--text2);margin-top:4px}
+.admin-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.order-admin-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:10px}
+.order-admin-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+.order-admin-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.btn-action{height:34px;padding:0 14px;border-radius:8px;font-size:12px;font-weight:600;border:1px solid var(--border);color:var(--text2);background:var(--bg);transition:all .15s}
+.btn-action:active{transform:scale(0.95)}
+.btn-action.accept{border-color:rgba(92,184,122,0.4);color:var(--green)}
+.btn-action.courier{border-color:rgba(92,143,224,0.4);color:var(--blue)}
+.btn-action.done{border-color:rgba(200,169,110,0.4);color:var(--accent)}
+.btn-action.cancel{border-color:rgba(224,92,92,0.3);color:var(--red)}
+
+/* SPACING UTILS */
+.mt8{margin-top:8px}.mt12{margin-top:12px}.mt16{margin-top:16px}.mt20{margin-top:20px}.mt24{margin-top:24px}
+.mb8{margin-bottom:8px}.mb12{margin-bottom:12px}.mb16{margin-bottom:16px}
+.row{display:flex;align-items:center;justify-content:space-between}
+.col{display:flex;flex-direction:column}
+.gap8{gap:8px}.gap12{gap:12px}
+.text-sm{font-size:13px}.text-xs{font-size:12px}.text-muted{color:var(--text2)}
+.text-accent{color:var(--accent)}
+.font-head{font-family:var(--font-head)}
+.fw600{font-weight:600}
+
+/* EMPTY STATE */
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:200px;color:var(--text3);text-align:center;gap:12px}
+.empty-icon{font-size:48px}
+.empty-text{font-size:14px}
+
+/* IOS INSTALL BANNER */
+.ios-banner{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);padding:14px 16px;margin:12px 0;display:flex;align-items:flex-start;gap:12px}
+.ios-banner-icon{font-size:24px;flex-shrink:0}
+.ios-banner-text{font-size:13px;color:var(--text2);line-height:1.5}
+.ios-banner-close{width:28px;height:28px;display:flex;align-items:center;justify-content:center;color:var(--text3);flex-shrink:0;margin-left:auto}
+
+/* SCROLL HINT */
+.scroll-hint{font-size:12px;color:var(--text3);text-align:center;padding:8px 0}
+</style>
+</head>
+<body>
+
+<canvas id="confetti-canvas"></canvas>
+<div id="toast" class="toast"></div>
+
+<!-- ==================== AUTH SCREEN ==================== -->
+<div id="screen-auth" class="screen active">
+  <div class="content" style="max-width:480px;margin:0 auto;padding-top:0">
+    <div class="auth-logo">
+      <span class="smoke-icon smoke-anim">🪔</span>
+      <div class="logo">Дам<span class="logo-accent">Дым</span></div>
+      <div class="tagline">кальян на дом · быстро · вкусно</div>
+    </div>
+
+    <div class="tab-switcher" id="auth-tabs">
+      <button class="tab-btn active" onclick="switchAuthTab('login')">Войти</button>
+      <button class="tab-btn" onclick="switchAuthTab('register')">Зарегистрироваться</button>
+    </div>
+
+    <div id="auth-login">
+      <div class="input-group">
+        <div class="input-label">Номер телефона</div>
+        <input type="tel" class="input-field" id="login-phone" placeholder="+7 777 000 00 00" oninput="formatPhone(this)">
+      </div>
+      <div class="input-group">
+        <div class="input-label">Пароль</div>
+        <input type="password" class="input-field" id="login-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+      <button class="btn btn-primary btn-full mt8" onclick="doLogin()">Войти</button>
+    </div>
+
+    <div id="auth-register" style="display:none">
+      <div class="input-group">
+        <div class="input-label">Ваше имя</div>
+        <input type="text" class="input-field" id="reg-name" placeholder="Алибек">
+      </div>
+      <div class="input-group">
+        <div class="input-label">Номер телефона</div>
+        <input type="tel" class="input-field" id="reg-phone" placeholder="+7 777 000 00 00" oninput="formatPhone(this)">
+      </div>
+      <div class="input-group">
+        <div class="input-label">Пароль</div>
+        <input type="password" class="input-field" id="reg-pass" placeholder="Минимум 6 символов">
+      </div>
+      <button class="btn btn-primary btn-full mt8" onclick="doRegister()">Создать аккаунт</button>
+    </div>
+
+    <button class="btn btn-ghost btn-full mt12" onclick="loginAsAdmin()" style="border-style:dashed;color:var(--text3)">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"/><path d="M3 20c0-4.4 3.6-8 8-8h2c4.4 0 8 3.6 8 8"/></svg>
+      Вход для администратора
+    </button>
+  </div>
+</div>
+
+<!-- ==================== ADMIN LOGIN ==================== -->
+<div id="screen-admin-login" class="screen">
+  <div class="topbar">
+    <button class="topbar-back" onclick="goTo('auth')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m15 18-6-6 6-6"/></svg>
+    </button>
+    <div class="topbar-title">Панель управления</div>
+    <div style="width:40px"></div>
+  </div>
+  <div class="content" style="max-width:480px;margin:0 auto">
+    <div style="text-align:center;padding:32px 0 40px">
+      <div style="font-size:40px;margin-bottom:16px">🔐</div>
+      <div style="font-family:var(--font-head);font-size:18px;font-weight:600">Доступ ограничен</div>
+      <div style="font-size:13px;color:var(--text2);margin-top:6px">Введите пароль администратора</div>
+    </div>
+    <div class="input-group">
+      <div class="input-label">Пароль</div>
+      <input type="password" class="input-field" id="admin-pass-input" placeholder="••••••••" onkeydown="if(event.key==='Enter')doAdminLogin()">
+    </div>
+    <button class="btn btn-primary btn-full mt8" onclick="doAdminLogin()">Войти</button>
+  </div>
+</div>
+
+<!-- ==================== HOME SCREEN ==================== -->
+<div id="screen-home" class="screen">
+  <div class="content-full" style="padding:0 20px">
+    <div class="hero">
+      <div>
+        <div class="hero-greeting" id="greeting-text">Добрый вечер 👋</div>
+        <div class="hero-name" id="hero-name">Алибек</div>
+      </div>
+      <div id="discount-pill-wrap">
+        <div class="discount-pill" id="discount-pill">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 14 6-6M9.5 9H9v.5M14.5 15H15v-.5"/><circle cx="12" cy="12" r="10"/></svg>
+          <span id="discount-text">Скидка 5%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACTIVE ORDER BANNER -->
+    <div id="active-order-banner" style="display:none;margin-bottom:16px">
+      <div class="card" style="background:var(--accent-bg);border-color:var(--accent-border);cursor:pointer" onclick="goTo('status')">
+        <div class="row">
+          <div>
+            <div style="font-size:12px;color:var(--text2);margin-bottom:4px">Активный заказ</div>
+            <div class="row gap8" id="active-status-text">
+              <span class="status-new"><span class="status-dot"></span></span>
+              <span style="font-size:14px;font-weight:500">Ищем мастера...</span>
+            </div>
+          </div>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROMO BANNER -->
+    <div class="card" style="background:linear-gradient(135deg,var(--bg3),var(--bg2));border-color:var(--border2);margin-bottom:16px;padding:22px">
+      <div style="font-family:var(--font-head);font-size:22px;font-weight:700;line-height:1.2;margin-bottom:8px">Кальян<br><span style="color:var(--accent)">за 45 минут</span></div>
+      <div style="font-size:13px;color:var(--text2);margin-bottom:16px">Доставим и настроим всё сами. Ты просто наслаждаешься.</div>
+      <button class="btn btn-primary btn-sm" onclick="goTo('order')">Заказать сейчас</button>
+    </div>
+
+    <!-- TARIFFS PREVIEW -->
+    <div class="section-title">Тарифы</div>
+    <div class="tariff-grid" id="home-tariffs">
+      <!-- filled by JS -->
+    </div>
+
+    <!-- HOW IT WORKS -->
+    <div class="section-title mt16">Как это работает</div>
+    <div class="feature-list">
+      <div class="feature-item"><div class="feature-dot"></div>Выбираешь тариф и вкус кальяна</div>
+      <div class="feature-item"><div class="feature-dot"></div>Мастер приезжает с оборудованием</div>
+      <div class="feature-item"><div class="feature-dot"></div>Готовит и настраивает прямо у тебя</div>
+      <div class="feature-item"><div class="feature-dot"></div>Уходит, когда заканчивается</div>
+    </div>
+
+    <!-- LOYALTY PREVIEW -->
+    <div class="section-title mt4">Программа лояльности</div>
+    <div class="levels-row" id="levels-row">
+      <!-- filled by JS -->
+    </div>
+    <div style="padding-bottom:8px"></div>
+  </div>
+  <div class="bottom-nav" id="nav-home">
+    <button class="nav-btn active" onclick="goTo('home')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
+      Главная
+    </button>
+    <button class="nav-btn" onclick="goTo('order')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+      Заказать
+    </button>
+    <button class="nav-btn" onclick="goTo('history')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M12 6v6l4 2"/></svg>
+      История
+    </button>
+    <button class="nav-btn" onclick="goTo('profile')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Профиль
+    </button>
+  </div>
+</div>
+
+<!-- ==================== ORDER SCREEN ==================== -->
+<div id="screen-order" class="screen">
+  <div class="topbar">
+    <button class="topbar-back" onclick="goTo('home')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m15 18-6-6 6-6"/></svg>
+    </button>
+    <div class="topbar-title">Новый заказ</div>
+    <div style="width:40px"></div>
+  </div>
+  <div class="content">
+
+    <!-- STEP INDICATOR -->
+    <div class="steps" id="order-steps">
+      <div class="step active" data-step="1"><div class="step-circle">1</div><div class="step-label">Тариф</div></div>
+      <div class="step" data-step="2"><div class="step-circle">2</div><div class="step-label">Кальяны</div></div>
+      <div class="step" data-step="3"><div class="step-circle">3</div><div class="step-label">Итог</div></div>
+    </div>
+
+    <!-- STEP 1: TARIFF -->
+    <div id="order-step-1">
+      <div class="section-title">Выберите тариф</div>
+      <div class="tariff-grid" id="order-tariff-grid">
+        <!-- filled by JS -->
+      </div>
+      <div id="tariff-features" style="margin-top:4px"></div>
+      <div style="position:sticky;bottom:24px;padding-top:12px;background:linear-gradient(to top,var(--bg) 70%,transparent)">
+        <button class="btn btn-primary btn-full" id="step1-next" onclick="goOrderStep(2)">Продолжить</button>
+      </div>
+    </div>
+
+    <!-- STEP 2: HOOKAH CONFIG -->
+    <div id="order-step-2" style="display:none">
+      <div class="row mb16">
+        <div class="section-title" style="margin:0">Кальяны</div>
+        <div class="count-control">
+          <button class="count-btn" onclick="addHookah(-1)">−</button>
+          <div class="count-val" id="hookah-count-val">1</div>
+          <button class="count-btn" onclick="addHookah(1)">+</button>
+        </div>
+      </div>
+      <div id="hookah-configs"></div>
+      <div style="position:sticky;bottom:24px;padding-top:12px;background:linear-gradient(to top,var(--bg) 70%,transparent)">
+        <div class="row mb12" style="gap:12px">
+          <button class="btn btn-ghost" style="flex:1" onclick="goOrderStep(1)">Назад</button>
+          <button class="btn btn-primary" style="flex:2" onclick="goOrderStep(3)">К оплате</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 3: SUMMARY -->
+    <div id="order-step-3" style="display:none">
+      <div class="section-title">Ваш заказ</div>
+      <div id="order-summary-card" class="card" style="margin-bottom:12px"></div>
+
+      <!-- ADDRESS -->
+      <div class="input-group">
+        <div class="input-label">Адрес доставки</div>
+        <input type="text" class="input-field" id="order-address" placeholder="ул. Пушкина, д.15, кв. 42">
+      </div>
+
+      <!-- COMMENT -->
+      <div class="input-group">
+        <div class="input-label">Комментарий (необязательно)</div>
+        <textarea class="input-field" id="order-comment" placeholder="Позвоните за 10 минут..."></textarea>
+      </div>
+
+      <!-- PROMO -->
+      <div class="input-group">
+        <div class="input-label">Промокод</div>
+        <div class="promo-wrap">
+          <input type="text" class="input-field" id="promo-input" placeholder="HOOKAH2026" style="text-transform:uppercase">
+          <button class="btn btn-ghost btn-sm" onclick="applyPromo()" style="white-space:nowrap">Применить</button>
+        </div>
+        <div id="promo-result" style="margin-top:8px;font-size:13px"></div>
+      </div>
+
+      <!-- PRICE BREAKDOWN -->
+      <div class="card" id="price-breakdown" style="margin-bottom:20px"></div>
+
+      <div style="position:sticky;bottom:24px;padding-top:12px;background:linear-gradient(to top,var(--bg) 70%,transparent)">
+        <div class="row mb12" style="gap:12px">
+          <button class="btn btn-ghost" style="flex:1" onclick="goOrderStep(2)">Назад</button>
+          <button class="btn btn-primary" style="flex:2" onclick="placeOrder()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            Оформить заказ
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== STATUS SCREEN ==================== -->
+<div id="screen-status" class="screen">
+  <div class="topbar">
+    <button class="topbar-back" onclick="goTo('home')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m15 18-6-6 6-6"/></svg>
+    </button>
+    <div class="topbar-title">Статус заказа</div>
+    <div style="width:40px"></div>
+  </div>
+  <div class="content">
+    <div id="status-content">
+      <div class="empty"><div class="spinner"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== HISTORY SCREEN ==================== -->
+<div id="screen-history" class="screen">
+  <div class="topbar">
+    <button class="topbar-back" onclick="goTo('home')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m15 18-6-6 6-6"/></svg>
+    </button>
+    <div class="topbar-title">История заказов</div>
+    <div style="width:40px"></div>
+  </div>
+  <div class="content">
+    <div id="history-list">
+      <div class="empty"><div class="spinner"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== PROFILE SCREEN ==================== -->
+<div id="screen-profile" class="screen">
+  <div class="topbar">
+    <button class="topbar-back" onclick="goTo('home')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m15 18-6-6 6-6"/></svg>
+    </button>
+    <div class="topbar-title">Профиль</div>
+    <div style="width:40px"></div>
+  </div>
+  <div class="content">
+    <div id="profile-content"></div>
+  </div>
+</div>
+
+<!-- ==================== ADMIN SCREEN ==================== -->
+<div id="screen-admin" class="screen">
+  <div class="topbar">
+    <div class="topbar-title">🔧 Панель admin</div>
+    <button class="btn btn-sm btn-ghost" onclick="logoutAdmin()" style="font-size:12px;height:34px">Выйти</button>
+  </div>
+
+  <div style="overflow-x:auto;white-space:nowrap;padding:0 20px 12px">
+    <div style="display:inline-flex;gap:8px">
+      <button class="chip active" id="admin-tab-orders" onclick="switchAdminTab('orders')">Заказы</button>
+      <button class="chip" id="admin-tab-clients" onclick="switchAdminTab('clients')">Клиенты</button>
+      <button class="chip" id="admin-tab-promos" onclick="switchAdminTab('promos')">Промокоды</button>
+      <button class="chip" id="admin-tab-stats" onclick="switchAdminTab('stats')">Статистика</button>
+    </div>
+  </div>
+
+  <div class="content" id="admin-content">
+    <div class="empty"><div class="spinner"></div></div>
+  </div>
+</div>
+
+<!-- MODALS -->
+<div id="modal-client" class="modal-overlay" onclick="closeModal('client')">
+  <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div id="modal-client-content"></div>
+  </div>
+</div>
+
+<div id="modal-promo" class="modal-overlay" onclick="closeModal('promo')">
+  <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div id="modal-promo-content"></div>
+  </div>
+</div>
+
+<!-- FIREBASE SDK -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, doc, getDoc, getDocs, setDoc, addDoc, updateDoc, onSnapshot, query, where, orderBy, increment, Timestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+// ============================================================
+// FIREBASE CONFIG — замените на ваш конфиг из Firebase Console
+// ============================================================
+const firebaseConfig = {
+  apiKey: "DEMO_MODE",
+  authDomain: "damdym.firebaseapp.com",
+  projectId: "damdym",
+  storageBucket: "damdym.appspot.com",
+  messagingSenderId: "000000000000",
+  appId: "1:000000000000:web:demo"
+};
+
+let db = null;
+let demoMode = true; // если Firebase не настроен — демо-режим
+
+try {
+  const app = initializeApp(firebaseConfig);
+  if (firebaseConfig.apiKey !== "DEMO_MODE") {
+    db = getFirestore(app);
+    demoMode = false;
+  }
+} catch(e) { demoMode = true; }
+
+// ============================================================
+// DEMO DATA STORE (работает без Firebase)
+// ============================================================
+const DEMO = {
+  users: {
+    "+77771234567": { name: "Алибек", password: "123456", totalSpent: 85000, customDiscount: 0, usedPromos: [] },
+    "+77779876543": { name: "Айгерим", password: "123456", totalSpent: 320000, customDiscount: 0, usedPromos: [] },
+  },
+  orders: [],
+  promos: {
+    "HOOKAH2026": { discount: 10, globalLimit: 100, userLimit: 1, usedCount: 3, isActive: true },
+    "VIP20": { discount: 20, globalLimit: 10, userLimit: 1, usedCount: 0, isActive: true },
+    "FIRST": { discount: 15, globalLimit: 0, userLimit: 1, usedCount: 12, isActive: true },
+  },
+  nextOrderId: 1
+};
+
+// ============================================================
+// CONSTANTS
+// ============================================================
+const TARIFFS = {
+  SOLO:   { name: "SOLO",   icon: "🪔",  desc: "1 кальян\nДля себя",          baseHookahs: 1, price: 7500,  color: "var(--text)" },
+  DOUBLE: { name: "DOUBLE", icon: "🫧🪔", desc: "2 кальяна\nДля двоих",        baseHookahs: 2, price: 13500, color: "var(--accent)", featured: true },
+  TEAM:   { name: "TEAM",   icon: "🎊",  desc: "4 кальяна\nДля компании",      baseHookahs: 4, price: 24000, color: "var(--blue)" },
+};
+const EXTRA_HOOKAH_PRICE = 2000;
+const FLAVORS = [
+  {emoji:"🍑", label:"Персик"},
+  {emoji:"🍋", label:"Лимон"},
+  {emoji:"🍓", label:"Клубника"},
+  {emoji:"🫐", label:"Черника"},
+  {emoji:"🍦", label:"Ваниль"},
+  {emoji:"🍉", label:"Арбуз"},
+  {emoji:"🌿", label:"Мята"},
+  {emoji:"🍇", label:"Виноград"},
+  {emoji:"🥭", label:"Манго"},
+];
+const STRENGTH_LABELS = ["Без дыма","Лёгкий","Лёгкий","Мягкий","Мягкий","Средний","Средний","Крепкий","Крепкий","Дым машина","💀 MAX"];
+const LOYALTY_LEVELS = [
+  { name: "Новичок",   icon: "✨", minSpent: 0,       discount: 0,  color: "var(--text2)" },
+  { name: "Любитель",  icon: "🌿", minSpent: 30000,   discount: 5,  color: "var(--green)" },
+  { name: "Знаток",    icon: "🔥", minSpent: 100000,  discount: 10, color: "var(--accent)" },
+  { name: "Мастер",    icon: "💎", minSpent: 300000,  discount: 15, color: "var(--blue)" },
+  { name: "Легенда",   icon: "👑", minSpent: 1000000, discount: 20, color: "var(--red)" },
+];
+const ADMIN_HASH = "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918"; // sha256("admin")
+
+// ============================================================
+// STATE
+// ============================================================
+let state = {
+  currentScreen: "auth",
+  currentUser: null,
+  userData: null,
+  selectedTariff: "DOUBLE",
+  hookahs: [],
+  orderStep: 1,
+  activeOrder: null,
+  promoApplied: null,
+  promoDiscount: 0,
+  adminLoggedIn: false,
+  unsubscribeOrders: null,
+  allOrdersAdmin: [],
+  allUsersAdmin: [],
+};
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+window.goTo = function(screen) {
+  const prev = document.getElementById("screen-" + state.currentScreen);
+  const next = document.getElementById("screen-" + screen);
+  if (!next) return;
+  if (prev) { prev.classList.remove("active"); prev.classList.add("exit"); setTimeout(()=>prev.classList.remove("exit"),300); }
+  next.classList.add("active");
+  next.scrollTop = 0;
+  state.currentScreen = screen;
+  updateNavActive(screen);
+  if (screen === "home") refreshHome();
+  if (screen === "status") renderStatus();
+  if (screen === "history") loadHistory();
+  if (screen === "profile") renderProfile();
+  if (screen === "admin") loadAdmin();
+};
+
+function updateNavActive(screen) {
+  document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
+  const map = {home:"home",order:"order",history:"history",profile:"profile"};
+  if (map[screen]) {
+    const nav = document.querySelector(`.nav-btn[onclick="goTo('${screen}')"]`);
+    if (nav) nav.classList.add("active");
+  }
+}
+
+// ============================================================
+// PHONE FORMAT
+// ============================================================
+window.formatPhone = function(input) {
+  let v = input.value.replace(/\D/g,"");
+  if (v.startsWith("8")) v = "7"+v.slice(1);
+  if (!v.startsWith("7") && v.length > 0) v = "7"+v;
+  v = v.slice(0,11);
+  let out = "";
+  if (v.length > 0) out = "+"+v[0];
+  if (v.length > 1) out += " "+v.slice(1,4);
+  if (v.length > 4) out += " "+v.slice(4,7);
+  if (v.length > 7) out += " "+v.slice(7,9);
+  if (v.length > 9) out += " "+v.slice(9,11);
+  input.value = out;
+};
+
+function cleanPhone(v) { return "+"+v.replace(/\D/g,""); }
+
+// ============================================================
+// AUTH
+// ============================================================
+window.switchAuthTab = function(tab) {
+  document.querySelectorAll(".tab-btn").forEach((b,i) => b.classList.toggle("active", (i===0&&tab==="login")||(i===1&&tab==="register")));
+  document.getElementById("auth-login").style.display = tab==="login"?"block":"none";
+  document.getElementById("auth-register").style.display = tab==="register"?"block":"none";
+};
+
+window.doLogin = async function() {
+  const phone = cleanPhone(document.getElementById("login-phone").value);
+  const pass = document.getElementById("login-pass").value;
+  if (phone.length < 10) return showToast("Введите номер телефона","error");
+  if (!pass) return showToast("Введите пароль","error");
+
+  let user = null;
+  if (demoMode) {
+    user = DEMO.users[phone];
+    if (!user) return showToast("Пользователь не найден","error");
+    if (user.password !== pass) return showToast("Неверный пароль","error");
+  } else {
+    const snap = await getDoc(doc(db,"users",phone));
+    if (!snap.exists()) return showToast("Пользователь не найден","error");
+    user = snap.data();
+    if (user.password !== pass) return showToast("Неверный пароль","error");
+  }
+  state.currentUser = phone;
+  state.userData = { ...user, phone };
+  localStorage.setItem("damdym_phone", phone);
+  localStorage.setItem("damdym_pass", pass);
+  initHookahs();
+  goTo("home");
+};
+
+window.doRegister = async function() {
+  const name = document.getElementById("reg-name").value.trim();
+  const phone = cleanPhone(document.getElementById("reg-phone").value);
+  const pass = document.getElementById("reg-pass").value;
+  if (!name) return showToast("Введите имя","error");
+  if (phone.length < 11) return showToast("Введите номер телефона","error");
+  if (pass.length < 6) return showToast("Пароль минимум 6 символов","error");
+
+  const newUser = { name, password: pass, totalSpent: 0, customDiscount: 0, usedPromos: [] };
+  if (demoMode) {
+    if (DEMO.users[phone]) return showToast("Такой номер уже зарегистрирован","error");
+    DEMO.users[phone] = newUser;
+  } else {
+    const snap = await getDoc(doc(db,"users",phone));
+    if (snap.exists()) return showToast("Такой номер уже зарегистрирован","error");
+    await setDoc(doc(db,"users",phone), newUser);
+  }
+  state.currentUser = phone;
+  state.userData = { ...newUser, phone };
+  localStorage.setItem("damdym_phone", phone);
+  localStorage.setItem("damdym_pass", pass);
+  initHookahs();
+  goTo("home");
+};
+
+window.loginAsAdmin = function() { goTo("admin-login"); };
+
+window.doAdminLogin = async function() {
+  const pass = document.getElementById("admin-pass-input").value;
+  const hash = await sha256(pass);
+  if (hash !== ADMIN_HASH) return showToast("Неверный пароль","error");
+  state.adminLoggedIn = true;
+  sessionStorage.setItem("damdym_admin","1");
+  goTo("admin");
+};
+
+window.logoutAdmin = function() {
+  state.adminLoggedIn = false;
+  sessionStorage.removeItem("damdym_admin");
+  goTo("auth");
+};
+
+async function sha256(str) {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,"0")).join("");
+}
+
+// ============================================================
+// LOYALTY
+// ============================================================
+function getDiscount(userData) {
+  if (!userData) return 0;
+  if (userData.customDiscount > 0) return userData.customDiscount;
+  const spent = userData.totalSpent || 0;
+  let disc = 0;
+  for (const lv of LOYALTY_LEVELS) { if (spent >= lv.minSpent) disc = lv.discount; }
+  return disc;
+}
+
+function getLevelData(userData) {
+  const spent = userData?.totalSpent || 0;
+  let current = LOYALTY_LEVELS[0], next = LOYALTY_LEVELS[1];
+  for (let i = 0; i < LOYALTY_LEVELS.length; i++) {
+    if (spent >= LOYALTY_LEVELS[i].minSpent) { current = LOYALTY_LEVELS[i]; next = LOYALTY_LEVELS[i+1] || null; }
+  }
+  return { current, next, spent };
+}
+
+// ============================================================
+// HOME
+// ============================================================
+function refreshHome() {
+  if (!state.userData) return;
+  const ud = state.userData;
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? "Доброе утро 👋" : hour < 18 ? "Добрый день 👋" : "Добрый вечер 👋";
+  document.getElementById("greeting-text").textContent = greeting;
+  document.getElementById("hero-name").textContent = ud.name;
+
+  const disc = getDiscount(ud);
+  if (disc > 0) {
+    document.getElementById("discount-text").textContent = `Скидка ${disc}%`;
+    document.getElementById("discount-pill-wrap").style.display = "";
+  } else {
+    document.getElementById("discount-pill-wrap").style.display = "none";
+  }
+
+  // Tariff cards on home
+  const disc_ = disc;
+  document.getElementById("home-tariffs").innerHTML = Object.entries(TARIFFS).map(([key, t]) => {
+    const price = Math.round(t.price * (1 - disc_/100));
+    const isFeat = t.featured;
+    return `<div class="tariff-card${isFeat?" featured":""}" onclick="selectAndOrder('${key}')">
+      ${isFeat?`<div class="tariff-badge">ХИТ</div>`:""}
+      <span class="tariff-icon">${t.icon}</span>
+      <div class="tariff-name">${t.name}</div>
+      <div class="tariff-desc">${t.desc.replace("\n","<br>")}</div>
+      ${disc_>0?`<div class="tariff-orig">${t.price.toLocaleString()} ₸</div>`:""}
+      <div class="tariff-price">${price.toLocaleString()} ₸</div>
+    </div>`;
+  }).join("");
+
+  // Levels row
+  const lv = getLevelData(ud);
+  document.getElementById("levels-row").innerHTML = LOYALTY_LEVELS.map(l => {
+    const isCurrent = l.name === lv.current.name;
+    return `<div class="level-card${isCurrent?" current":""}">
+      <div class="level-icon">${l.icon}</div>
+      <div class="level-title">${l.name}</div>
+      <div class="level-disc">${l.discount > 0 ? "−"+l.discount+"%" : "Без скидки"}</div>
+      <div class="level-req">${l.minSpent > 0 ? "от "+l.minSpent.toLocaleString()+"₸" : "Стартовый"}</div>
+    </div>`;
+  }).join("");
+
+  checkActiveOrder();
+}
+
+function checkActiveOrder() {
+  const orders = demoMode ? DEMO.orders : [];
+  const active = orders.find(o => o.phone === state.currentUser && ["new","accepted","courier"].includes(o.status));
+  const banner = document.getElementById("active-order-banner");
+  if (active) {
+    banner.style.display = "";
+    const statusMap = {new:"Ищем мастера...",accepted:"Мастер готовит",courier:"Мастер едет к вам"};
+    const cls = active.status === "courier" ? "status-courier" : active.status === "accepted" ? "status-accepted" : "status-new";
+    document.getElementById("active-status-text").innerHTML = `<span class="${cls}"><span class="status-dot"></span></span><span style="font-size:14px;font-weight:500">${statusMap[active.status]||""}</span>`;
+    state.activeOrder = active;
+  } else {
+    banner.style.display = "none";
+    state.activeOrder = null;
+  }
+}
+
+window.selectAndOrder = function(tariffKey) {
+  state.selectedTariff = tariffKey;
+  state.orderStep = 1;
+  goTo("order");
+  setTimeout(() => renderOrderStep1(), 100);
+};
+
+// ============================================================
+// ORDER FLOW
+// ============================================================
+function initHookahs() {
+  const t = TARIFFS[state.selectedTariff] || TARIFFS.DOUBLE;
+  state.hookahs = Array.from({length: t.baseHookahs}, (_, i) => ({
+    strength: 5, flavor: "", flavorCustom: "", ice: false
+  }));
+}
+
+window.addHookah = function(delta) {
+  const t = TARIFFS[state.selectedTariff];
+  const min = t.baseHookahs, max = t.baseHookahs + 4;
+  const newCount = Math.max(min, Math.min(max, state.hookahs.length + delta));
+  while (state.hookahs.length < newCount) state.hookahs.push({strength:5,flavor:"",flavorCustom:"",ice:false});
+  while (state.hookahs.length > newCount) state.hookahs.pop();
+  document.getElementById("hookah-count-val").textContent = state.hookahs.length;
+  renderHookahConfigs();
+};
+
+window.goOrderStep = function(step) {
+  if (step === 2) {
+    const t = TARIFFS[state.selectedTariff];
+    if (!t) return showToast("Выберите тариф","error");
+    initHookahs();
+  }
+  if (step === 3) {
+    renderOrderSummary();
+  }
+  ["1","2","3"].forEach(s => {
+    document.getElementById("order-step-"+s).style.display = s == step ? "block" : "none";
+  });
+  document.querySelectorAll(".step").forEach((el, i) => {
+    el.classList.toggle("done", i + 1 < step);
+    el.classList.toggle("active", i + 1 == step);
+  });
+  state.orderStep = step;
+  document.getElementById("screen-order").scrollTop = 0;
+};
+
+function renderOrderStep1() {
+  const disc = getDiscount(state.userData);
+  document.getElementById("order-tariff-grid").innerHTML = Object.entries(TARIFFS).map(([key, t]) => {
+    const price = Math.round(t.price * (1 - disc/100));
+    const selected = key === state.selectedTariff;
+    const isFull = key === "TEAM";
+    return `<div class="tariff-card${t.featured?" featured":""}${selected?" selected":""}${isFull?" tariff-full":""}" onclick="selectTariff('${key}')">
+      ${t.featured?`<div class="tariff-badge">ХИТ</div>`:""}
+      <span class="tariff-icon">${t.icon}</span>
+      <div class="tariff-name">${t.name}</div>
+      <div class="tariff-desc">${t.desc.replace("\n","<br>")}</div>
+      ${disc>0?`<div class="tariff-orig">${t.price.toLocaleString()} ₸</div>`:""}
+      <div class="tariff-price">${price.toLocaleString()} ₸</div>
+    </div>`;
+  }).join("");
+  updateTariffFeatures();
+}
+
+window.selectTariff = function(key) {
+  state.selectedTariff = key;
+  document.querySelectorAll(".tariff-card").forEach(c => c.classList.remove("selected"));
+  event.currentTarget.classList.add("selected");
+  updateTariffFeatures();
+};
+
+function updateTariffFeatures() {
+  const t = TARIFFS[state.selectedTariff];
+  const features = {
+    SOLO: ["1 кальян на 2-3 часа","Мастер настраивает","Выбор крепости и вкуса"],
+    DOUBLE: ["2 кальяна на 2-3 часа","Для пары или дуэта","Каждый выбирает свой вкус","Скидка на пару"],
+    TEAM: ["4 кальяна на 3-4 часа","Идеально для компании","Приоритетная доставка","Персональный мастер"]
+  };
+  document.getElementById("tariff-features").innerHTML = `<div class="feature-list mt12">${
+    (features[state.selectedTariff]||[]).map(f=>`<div class="feature-item"><div class="feature-dot"></div>${f}</div>`).join("")
+  }</div>`;
+}
+
+function renderHookahConfigs() {
+  document.getElementById("hookah-count-val").textContent = state.hookahs.length;
+  document.getElementById("hookah-configs").innerHTML = state.hookahs.map((h, i) => `
+    <div class="hookah-config">
+      <div class="hookah-config-header">
+        <div class="hookah-num">Кальян #${i+1}</div>
+        <div class="row gap8">
+          <span style="font-size:12px;color:var(--text2)">Холодок</span>
+          <label style="position:relative;display:inline-block;width:40px;height:22px">
+            <input type="checkbox" style="opacity:0;width:0;height:0" ${h.ice?"checked":""} onchange="setIce(${i},this.checked)">
+            <span style="position:absolute;inset:0;background:${h.ice?"var(--accent)":"var(--bg)"};border-radius:11px;border:1px solid var(--border2);cursor:pointer;transition:all .2s">
+              <span style="position:absolute;width:18px;height:18px;border-radius:50%;background:white;top:1px;left:${h.ice?"19px":"1px"};transition:left .2s"></span>
+            </span>
+          </label>
+        </div>
+      </div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:6px">Крепость: <b style="color:var(--text)">${STRENGTH_LABELS[h.strength]}</b></div>
+      <input type="range" class="slider-input" min="0" max="10" value="${h.strength}" oninput="setStrength(${i},+this.value)">
+      <div class="slider-labels"><span>Лёгкий</span><span>Средний</span><span>Крепкий</span></div>
+      <div style="margin-top:14px;font-size:12px;color:var(--text2);margin-bottom:8px">Вкус:</div>
+      <div class="flavor-grid">${FLAVORS.map(f=>`
+        <div class="flavor-card${h.flavor===f.label?" active":""}" onclick="setFlavor(${i},'${f.label}')">
+          <span class="flavor-emoji">${f.emoji}</span>${f.label}
+        </div>`).join("")}
+      </div>
+      <input type="text" class="input-field mt8" placeholder="Свой вариант..." value="${h.flavorCustom}" oninput="setFlavorCustom(${i},this.value)" style="height:42px;font-size:14px">
+    </div>
+  `).join("");
+}
+
+window.setStrength = function(i, v) { state.hookahs[i].strength = v; document.querySelectorAll(".hookah-config")[i].querySelector(".hookah-num").nextElementSibling?.querySelector?.("b")?.textContent; document.querySelectorAll(".hookah-config")[i].querySelector('[style*="Крепость"]') && (document.querySelectorAll(".hookah-config")[i].querySelector('[style*="Крепость"]').innerHTML = `Крепость: <b style="color:var(--text)">${STRENGTH_LABELS[v]}</b>`); state.hookahs[i].strength=v; };
+window.setFlavor = function(i, f) { state.hookahs[i].flavor = f; renderHookahConfigs(); };
+window.setFlavorCustom = function(i, v) { state.hookahs[i].flavorCustom = v; state.hookahs[i].flavor = ""; };
+window.setIce = function(i, v) { state.hookahs[i].ice = v; };
+
+function calcTotal() {
+  const t = TARIFFS[state.selectedTariff];
+  const disc = getDiscount(state.userData);
+  const extra = Math.max(0, state.hookahs.length - t.baseHookahs);
+  const basePrice = Math.round(t.price * (1 - disc/100));
+  const extraCost = extra * EXTRA_HOOKAH_PRICE;
+  let total = basePrice + extraCost;
+  let promoDisc = 0;
+  if (state.promoApplied) {
+    const pd = state.promoDiscount;
+    if (pd > disc) { promoDisc = Math.round(total * pd / 100); total = Math.round(total * (1 - pd/100)); }
+  }
+  return { basePrice, extraCost, extra, total, disc, promoDisc };
+}
+
+function renderOrderSummary() {
+  const t = TARIFFS[state.selectedTariff];
+  const c = calcTotal();
+  document.getElementById("order-summary-card").innerHTML = `
+    <div class="row mb12"><div style="font-size:15px;font-weight:600">Тариф ${state.selectedTariff}</div><div style="font-size:15px;color:var(--accent);font-weight:600">${c.basePrice.toLocaleString()} ₸</div></div>
+    ${state.hookahs.map((h,i)=>`
+      <div style="display:flex;gap:8px;align-items:center;padding:8px 0;border-top:1px solid var(--border)">
+        <span style="font-size:18px">${t.icon}</span>
+        <div style="flex:1"><div style="font-size:13px;font-weight:500">Кальян #${i+1}</div>
+        <div style="font-size:12px;color:var(--text2)">${h.flavorCustom || h.flavor || "Вкус не выбран"} · ${STRENGTH_LABELS[h.strength]} ${h.ice?"· 🧊":""}</div></div>
+      </div>`).join("")}
+    ${c.extra>0?`<div class="row mt8" style="border-top:1px solid var(--border);padding-top:8px"><div style="font-size:13px;color:var(--text2)">Доп. кальяны ×${c.extra}</div><div style="font-size:13px">+${c.extraCost.toLocaleString()} ₸</div></div>`:""}
+  `;
+  renderPriceBreakdown();
+}
+
+function renderPriceBreakdown() {
+  const c = calcTotal();
+  document.getElementById("price-breakdown").innerHTML = `
+    <div class="price-row"><div class="price-label">Стоимость тарифа</div><div class="price-value">${TARIFFS[state.selectedTariff].price.toLocaleString()} ₸</div></div>
+    ${c.disc>0?`<div class="price-row"><div class="price-label">Скидка лояльности −${c.disc}%</div><div class="price-value" style="color:var(--green)">−${Math.round(TARIFFS[state.selectedTariff].price*c.disc/100).toLocaleString()} ₸</div></div>`:""}
+    ${c.extra>0?`<div class="price-row"><div class="price-label">Доп. кальяны ×${c.extra}</div><div class="price-value">+${c.extraCost.toLocaleString()} ₸</div></div>`:""}
+    ${c.promoDisc>0?`<div class="price-row"><div class="price-label">Промокод −${state.promoDiscount}%</div><div class="price-value" style="color:var(--green)">−${c.promoDisc.toLocaleString()} ₸</div></div>`:""}
+    <div class="price-row" style="border-top:2px solid var(--border2);margin-top:8px;padding-top:16px"><div class="price-label" style="font-size:15px;font-weight:500;color:var(--text)">Итого</div><div class="price-total">${c.total.toLocaleString()} ₸</div></div>
+  `;
+}
+
+window.applyPromo = async function() {
+  const code = document.getElementById("promo-input").value.trim().toUpperCase();
+  if (!code) return;
+  const el = document.getElementById("promo-result");
+  el.textContent = "Проверяем..."; el.style.color = "var(--text2)";
+  
+  let promo = null;
+  if (demoMode) { promo = DEMO.promos[code]; } 
+  else {
+    const snap = await getDoc(doc(db,"promocodes",code));
+    if (snap.exists()) promo = snap.data();
+  }
+  if (!promo) { el.textContent = "❌ Промокод не найден"; el.style.color = "var(--red)"; return; }
+  if (!promo.isActive) { el.textContent = "❌ Промокод неактивен"; el.style.color = "var(--red)"; return; }
+  if (promo.globalLimit > 0 && promo.usedCount >= promo.globalLimit) { el.textContent = "❌ Промокод исчерпан"; el.style.color = "var(--red)"; return; }
+  const usedPromos = state.userData?.usedPromos || [];
+  const timesUsed = usedPromos.filter(p => p === code).length;
+  if (promo.userLimit > 0 && timesUsed >= promo.userLimit) { el.textContent = "❌ Вы уже использовали этот промокод"; el.style.color = "var(--red)"; return; }
+  
+  state.promoApplied = code;
+  state.promoDiscount = promo.discount;
+  el.textContent = `✅ Промокод применён: −${promo.discount}%`; el.style.color = "var(--green)";
+  renderPriceBreakdown();
+};
+
+window.placeOrder = async function() {
+  const address = document.getElementById("order-address").value.trim();
+  if (!address) return showToast("Введите адрес доставки","error");
+  const c = calcTotal();
+  const order = {
+    phone: state.currentUser,
+    name: state.userData.name,
+    tariff: state.selectedTariff,
+    price: c.total,
+    address,
+    comment: document.getElementById("order-comment").value.trim(),
+    hookahs: state.hookahs.map(h => ({...h, strengthLabel: STRENGTH_LABELS[h.strength]})),
+    promo: state.promoApplied || null,
+    discount: Math.max(c.disc, state.promoDiscount),
+    status: "new",
+    createdAt: Date.now(),
+    id: demoMode ? ("order_" + (DEMO.nextOrderId++)) : null
+  };
+
+  if (demoMode) {
+    DEMO.orders.push(order);
+    state.activeOrder = order;
+    if (state.promoApplied) {
+      DEMO.promos[state.promoApplied] && DEMO.promos[state.promoApplied].usedCount++;
+      state.userData.usedPromos = [...(state.userData.usedPromos||[]), state.promoApplied];
+    }
+  } else {
+    const ref = await addDoc(collection(db,"orders"), order);
+    order.id = ref.id;
+    if (state.promoApplied) {
+      await updateDoc(doc(db,"promocodes",state.promoApplied), { usedCount: increment(1) });
+      await updateDoc(doc(db,"users",state.currentUser), { usedPromos: [...(state.userData.usedPromos||[]), state.promoApplied] });
+    }
+  }
+  state.promoApplied = null; state.promoDiscount = 0;
+  fireConfetti();
+  showToast("🎉 Заказ оформлен! Ищем мастера...","success");
+  setTimeout(() => goTo("status"), 1200);
+};
+
+// ============================================================
+// STATUS
+// ============================================================
+function renderStatus() {
+  const order = state.activeOrder || (demoMode ? DEMO.orders.filter(o=>o.phone===state.currentUser).slice(-1)[0] : null);
+  const el = document.getElementById("status-content");
+  if (!order) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">🪔</div><div class="empty-text">Нет активных заказов</div></div><button class="btn btn-primary btn-full mt16" onclick="goTo('order')">Сделать заказ</button>`;
+    return;
+  }
+  const statusFlow = [
+    {key:"new",     label:"Заказ принят",      sub:"Ищем доступного мастера"},
+    {key:"accepted",label:"Мастер подтвердил", sub:"Готовит всё необходимое"},
+    {key:"courier", label:"Мастер едет к вам", sub:"Скоро будет у вашей двери"},
+    {key:"done",    label:"Готово!",            sub:"Приятного дыма 🎉"},
+  ];
+  const steps = ["new","accepted","courier","done"];
+  const ci = steps.indexOf(order.status);
+
+  el.innerHTML = `
+    <div class="card mb12" style="background:var(--accent-bg);border-color:var(--accent-border)">
+      <div class="row mb4">
+        <div style="font-family:var(--font-head);font-size:14px">Заказ #${order.id?.slice(-4)||"0001"}</div>
+        <div class="badge badge-gold">${order.tariff}</div>
+      </div>
+      <div style="font-size:13px;color:var(--text2)">${order.address || ""}</div>
+      <div style="font-family:var(--font-head);font-size:20px;font-weight:700;color:var(--accent);margin-top:8px">${order.price?.toLocaleString()} ₸</div>
+    </div>
+    <div class="card mb12">
+      <div class="section-title" style="margin-bottom:12px">Статус</div>
+      <div class="status-timeline">
+        ${statusFlow.map((s,i) => `
+          <div class="timeline-item">
+            <div class="timeline-dot${i<ci?" done":i===ci?" active":""}">
+              ${i<ci?`<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>`:
+                i===ci?`<span style="width:8px;height:8px;border-radius:50%;background:var(--bg);display:block;margin:auto"></span>`:""}
+            </div>
+            <div class="timeline-content">
+              <div class="timeline-title" style="color:${i<=ci?"var(--text)":"var(--text3)"}">${s.label}</div>
+              <div class="timeline-sub">${i===ci?s.sub:""}</div>
+            </div>
+          </div>`).join("")}
+      </div>
+    </div>
+    ${order.status === "done" ? "" : `
+    <div class="card">
+      <div class="row">
+        <div style="font-size:14px">Связаться с нами</div>
+        <a href="https://wa.me/77071234567" class="btn btn-ghost btn-sm">WhatsApp</a>
+      </div>
+    </div>`}
+  `;
+}
+
+// ============================================================
+// HISTORY
+// ============================================================
+function loadHistory() {
+  const orders = demoMode ? DEMO.orders.filter(o => o.phone === state.currentUser) : [];
+  const el = document.getElementById("history-list");
+  if (!orders.length) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">📋</div><div class="empty-text">Заказов пока нет</div></div>`;
+    return;
+  }
+  const statusLabels = {new:"Новый",accepted:"Принят",courier:"В пути",done:"Выполнен",canceled_admin:"Отменён"};
+  const badgeClass = {new:"badge-gold",accepted:"badge-blue",courier:"badge-green",done:"badge-green",canceled_admin:"badge-red"};
+  el.innerHTML = [...orders].reverse().map(o => `
+    <div class="history-card mb12">
+      <div class="history-icon">${TARIFFS[o.tariff]?.icon||"🪔"}</div>
+      <div style="flex:1">
+        <div class="row mb4">
+          <div style="font-size:14px;font-weight:500">Тариф ${o.tariff}</div>
+          <div class="badge ${badgeClass[o.status]||"badge-blue"}">${statusLabels[o.status]||o.status}</div>
+        </div>
+        <div style="font-size:12px;color:var(--text2)">
+          ${o.hookahs.length} кальяна${o.hookahs.length>1?"":"ов"} · ${o.address||""}
+        </div>
+        <div style="font-size:13px;color:var(--accent);font-weight:600;margin-top:6px">${o.price?.toLocaleString()} ₸</div>
+      </div>
+    </div>
+  `).join("");
+}
+
+// ============================================================
+// PROFILE
+// ============================================================
+function renderProfile() {
+  const ud = state.userData;
+  if (!ud) return;
+  const lv = getLevelData(ud);
+  const disc = getDiscount(ud);
+  const nextProgress = lv.next ? Math.min(100, Math.round((ud.totalSpent - lv.current.minSpent) / (lv.next.minSpent - lv.current.minSpent) * 100)) : 100;
+  const initials = ud.name.slice(0,2).toUpperCase();
+
+  document.getElementById("profile-content").innerHTML = `
+    <div class="profile-header">
+      <div class="avatar">${initials}</div>
+      <div class="profile-name">${ud.name}</div>
+      <div class="profile-phone">${state.currentUser}</div>
+      <div class="discount-pill mt12"><span>${lv.current.icon} ${lv.current.name}</span></div>
+    </div>
+
+    <div class="card mb12">
+      <div class="row mb12">
+        <div class="tier-name">${disc > 0 ? "−"+disc+"%" : "0%"}</div>
+        <div style="font-size:13px;color:var(--text2)">скидка</div>
+      </div>
+      <div class="row mb8">
+        <div style="font-size:13px;color:var(--text2)">Потрачено</div>
+        <div style="font-size:13px;font-weight:500">${ud.totalSpent.toLocaleString()} ₸</div>
+      </div>
+      ${lv.next ? `
+        <div style="font-size:12px;color:var(--text3);margin-bottom:6px">До уровня "${lv.next.name}": ${(lv.next.minSpent - ud.totalSpent).toLocaleString()} ₸</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${nextProgress}%"></div></div>
+      ` : `<div style="font-size:13px;color:var(--accent)">Максимальный уровень достигнут! 👑</div>`}
+    </div>
+
+    <div class="section-title mt20">Уровни лояльности</div>
+    <div class="levels-row" style="margin-bottom:20px">
+      ${LOYALTY_LEVELS.map(l => {
+        const isCurrent = l.name === lv.current.name;
+        return `<div class="level-card${isCurrent?" current":""}">
+          <div class="level-icon">${l.icon}</div>
+          <div class="level-title">${l.name}</div>
+          <div class="level-disc">${l.discount > 0 ? "−"+l.discount+"%" : "Без скидки"}</div>
+          <div class="level-req">${l.minSpent > 0 ? "от "+l.minSpent.toLocaleString()+"₸" : "Стартовый"}</div>
+        </div>`;
+      }).join("")}
+    </div>
+
+    <button class="btn btn-ghost btn-full" onclick="doLogout()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Выйти из аккаунта
+    </button>
+  `;
+}
+
+window.doLogout = function() {
+  state.currentUser = null; state.userData = null;
+  localStorage.removeItem("damdym_phone"); localStorage.removeItem("damdym_pass");
+  goTo("auth");
+};
+
+// ============================================================
+// ADMIN PANEL
+// ============================================================
+function loadAdmin() {
+  switchAdminTab("orders");
+}
+
+window.switchAdminTab = function(tab) {
+  document.querySelectorAll("[id^='admin-tab-']").forEach(b => b.classList.remove("active"));
+  document.getElementById("admin-tab-"+tab)?.classList.add("active");
+  const el = document.getElementById("admin-content");
+  
+  if (tab === "orders") {
+    const orders = demoMode ? [...DEMO.orders].reverse() : [];
+    if (!orders.length) { el.innerHTML = `<div class="empty"><div class="empty-icon">📋</div><div class="empty-text">Заказов нет</div></div>`; return; }
+    const statusLabels = {new:"Новый",accepted:"Принят",courier:"В пути",done:"Выполнен",canceled_admin:"Отменён"};
+    const badgeClass = {new:"badge-gold",accepted:"badge-blue",courier:"badge-green",done:"badge-green",canceled_admin:"badge-red"};
+    el.innerHTML = orders.map(o => `
+      <div class="order-admin-card">
+        <div class="order-admin-header">
+          <div>
+            <div style="font-size:14px;font-weight:500">${o.name} · ${o.tariff}</div>
+            <div style="font-size:12px;color:var(--text2);margin-top:2px">${o.phone} · ${o.address||""}</div>
+            <div style="font-size:13px;color:var(--accent);margin-top:4px">${o.price?.toLocaleString()} ₸</div>
+          </div>
+          <div class="badge ${badgeClass[o.status]||""}">${statusLabels[o.status]||o.status}</div>
+        </div>
+        <div style="font-size:12px;color:var(--text3)">
+          ${o.hookahs.map((h,i)=>`Кальян #${i+1}: ${h.flavorCustom||h.flavor||"?"} · ${h.strengthLabel||""} ${h.ice?"· 🧊":""}`).join(" | ")}
+        </div>
+        ${o.comment ? `<div style="font-size:12px;color:var(--text2);margin-top:6px;padding:8px;background:var(--bg);border-radius:8px">"${o.comment}"</div>` : ""}
+        <div class="order-admin-actions">
+          ${o.status === "new" ? `<button class="btn-action accept" onclick="adminUpdateStatus('${o.id}','accepted')">✓ Принять</button>` : ""}
+          ${o.status === "accepted" ? `<button class="btn-action courier" onclick="adminUpdateStatus('${o.id}','courier')">🚗 Выехал</button>` : ""}
+          ${o.status === "courier" ? `<button class="btn-action done" onclick="adminUpdateStatus('${o.id}','done')">🎉 Выполнен</button>` : ""}
+          ${["new","accepted","courier"].includes(o.status) ? `<button class="btn-action cancel" onclick="adminUpdateStatus('${o.id}','canceled_admin')">✕ Отменить</button>` : ""}
+          <a href="https://wa.me/${o.phone.replace(/\D/g,"")}" class="btn-action" style="display:flex;align-items:center">💬 WA</a>
+        </div>
+      </div>`).join("");
+  }
+  
+  if (tab === "clients") {
+    const users = demoMode ? Object.entries(DEMO.users).map(([phone,u])=>({...u,phone})).sort((a,b)=>b.totalSpent-a.totalSpent) : [];
+    el.innerHTML = `
+      <div class="admin-grid mb16">
+        <div class="admin-stat"><div class="admin-stat-val">${users.length}</div><div class="admin-stat-label">Клиентов</div></div>
+        <div class="admin-stat"><div class="admin-stat-val">${users.reduce((s,u)=>s+u.totalSpent,0).toLocaleString()}₸</div><div class="admin-stat-label">Общая выручка</div></div>
+      </div>
+      ${users.map(u => `
+        <div class="card mb8" style="cursor:pointer" onclick="openClientModal('${u.phone}')">
+          <div class="row">
+            <div style="display:flex;align-items:center;gap:12px">
+              <div style="width:36px;height:36px;border-radius:50%;background:var(--accent-bg);display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-size:13px;color:var(--accent)">${u.name.slice(0,2).toUpperCase()}</div>
+              <div><div style="font-size:14px;font-weight:500">${u.name}</div><div style="font-size:12px;color:var(--text2)">${u.phone}</div></div>
+            </div>
+            <div style="text-align:right">
+              <div style="font-size:13px;color:var(--accent)">${u.totalSpent.toLocaleString()} ₸</div>
+              <div style="font-size:11px;color:var(--text3)">${getLevelData(u).current.icon} ${getLevelData(u).current.name}</div>
+            </div>
+          </div>
+        </div>`).join("")}
+      <button class="btn btn-ghost btn-full mt12" onclick="exportCSV()">📊 Экспорт CSV</button>
+    `;
+  }
+  
+  if (tab === "promos") {
+    const promos = demoMode ? Object.entries(DEMO.promos).map(([code,p])=>({...p,code})) : [];
+    el.innerHTML = `
+      <button class="btn btn-primary btn-full mb16" onclick="openPromoModal()">+ Создать промокод</button>
+      ${promos.map(p => `
+        <div class="card mb8">
+          <div class="row mb8">
+            <div style="font-family:var(--font-head);font-size:16px;font-weight:700;letter-spacing:1px">${p.code}</div>
+            <div class="badge ${p.isActive?"badge-green":"badge-red"}">${p.isActive?"Активен":"Выкл"}</div>
+          </div>
+          <div style="display:flex;gap:16px;font-size:12px;color:var(--text2)">
+            <span>Скидка: <b style="color:var(--accent)">${p.discount}%</b></span>
+            <span>Использований: ${p.usedCount}${p.globalLimit>0?" / "+p.globalLimit:""}</span>
+            <span>На 1 аккаунт: ${p.userLimit||"∞"}</span>
+          </div>
+          <div class="row mt12">
+            <button class="btn-action${p.isActive?" cancel":""}" onclick="togglePromo('${p.code}',${!p.isActive})">${p.isActive?"Деактивировать":"Активировать"}</button>
+          </div>
+        </div>`).join("")}
+    `;
+  }
+  
+  if (tab === "stats") {
+    const orders = demoMode ? DEMO.orders : [];
+    const done = orders.filter(o=>o.status==="done");
+    const revenue = done.reduce((s,o)=>s+o.price,0);
+    const avgCheck = done.length ? Math.round(revenue/done.length) : 0;
+    const tariffCounts = {SOLO:0,DOUBLE:0,TEAM:0};
+    orders.forEach(o => tariffCounts[o.tariff] = (tariffCounts[o.tariff]||0)+1);
+    el.innerHTML = `
+      <div class="admin-grid mb16">
+        <div class="admin-stat"><div class="admin-stat-val">${orders.length}</div><div class="admin-stat-label">Всего заказов</div></div>
+        <div class="admin-stat"><div class="admin-stat-val">${done.length}</div><div class="admin-stat-label">Выполнено</div></div>
+        <div class="admin-stat"><div class="admin-stat-val">${revenue.toLocaleString()}₸</div><div class="admin-stat-label">Выручка</div></div>
+        <div class="admin-stat"><div class="admin-stat-val">${avgCheck.toLocaleString()}₸</div><div class="admin-stat-label">Средний чек</div></div>
+      </div>
+      <div class="section-title">По тарифам</div>
+      ${Object.entries(tariffCounts).map(([k,v])=>`
+        <div class="row mb8">
+          <div style="font-size:14px">${TARIFFS[k]?.icon} ${k}</div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="width:80px;height:4px;background:var(--bg3);border-radius:2px"><div style="width:${orders.length?Math.round(v/orders.length*100):0}%;height:100%;background:var(--accent);border-radius:2px"></div></div>
+            <div style="font-size:13px;color:var(--text2)">${v}</div>
+          </div>
+        </div>`).join("")}
+    `;
+  }
+};
+
+window.adminUpdateStatus = function(id, newStatus) {
+  const order = DEMO.orders.find(o => o.id === id);
+  if (!order) return;
+  if (newStatus === "done") {
+    const u = DEMO.users[order.phone];
+    if (u) u.totalSpent += order.price;
+    if (state.userData?.phone === order.phone) {
+      state.userData.totalSpent = (state.userData.totalSpent||0) + order.price;
+    }
+  }
+  order.status = newStatus;
+  if (state.activeOrder?.id === id) { state.activeOrder.status = newStatus; }
+  showToast("Статус обновлён","success");
+  switchAdminTab("orders");
+};
+
+window.openClientModal = function(phone) {
+  const u = DEMO.users[phone];
+  if (!u) return;
+  document.getElementById("modal-client-content").innerHTML = `
+    <div style="font-family:var(--font-head);font-size:18px;font-weight:600;margin-bottom:4px">${u.name}</div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:20px">${phone}</div>
+    <div class="input-group"><div class="input-label">Имя</div><input type="text" class="input-field" id="edit-name" value="${u.name}"></div>
+    <div class="input-group"><div class="input-label">Сумма трат (₸)</div><input type="number" class="input-field" id="edit-spent" value="${u.totalSpent}"></div>
+    <div class="input-group"><div class="input-label">Фиксированная скидка % (0 = авто)</div><input type="number" class="input-field" id="edit-disc" value="${u.customDiscount||0}" min="0" max="50"></div>
+    <button class="btn btn-primary btn-full mt8" onclick="saveClient('${phone}')">Сохранить</button>
+  `;
+  openModal("client");
+};
+
+window.saveClient = function(phone) {
+  const u = DEMO.users[phone];
+  if (!u) return;
+  u.name = document.getElementById("edit-name").value;
+  u.totalSpent = parseInt(document.getElementById("edit-spent").value)||0;
+  u.customDiscount = parseInt(document.getElementById("edit-disc").value)||0;
+  closeModal("client");
+  showToast("Клиент сохранён","success");
+  switchAdminTab("clients");
+};
+
+window.openPromoModal = function() {
+  document.getElementById("modal-promo-content").innerHTML = `
+    <div style="font-family:var(--font-head);font-size:18px;font-weight:600;margin-bottom:20px">Новый промокод</div>
+    <div class="input-group"><div class="input-label">Код</div><input type="text" class="input-field" id="new-promo-code" placeholder="HOOKAH2026" style="text-transform:uppercase"></div>
+    <div class="input-group"><div class="input-label">Скидка %</div><input type="number" class="input-field" id="new-promo-disc" value="10" min="1" max="50"></div>
+    <div class="input-group"><div class="input-label">Лимит активаций (0 = безлимит)</div><input type="number" class="input-field" id="new-promo-limit" value="0"></div>
+    <div class="input-group"><div class="input-label">Лимит на 1 аккаунт</div><input type="number" class="input-field" id="new-promo-ulimit" value="1"></div>
+    <button class="btn btn-primary btn-full mt8" onclick="createPromo()">Создать</button>
+  `;
+  openModal("promo");
+};
+
+window.createPromo = function() {
+  const code = document.getElementById("new-promo-code").value.trim().toUpperCase();
+  if (!code) return showToast("Введите код","error");
+  DEMO.promos[code] = { discount: +document.getElementById("new-promo-disc").value, globalLimit: +document.getElementById("new-promo-limit").value, userLimit: +document.getElementById("new-promo-ulimit").value, usedCount: 0, isActive: true };
+  closeModal("promo");
+  showToast("Промокод создан","success");
+  switchAdminTab("promos");
+};
+
+window.togglePromo = function(code, active) {
+  if (DEMO.promos[code]) DEMO.promos[code].isActive = active;
+  switchAdminTab("promos");
+};
+
+window.exportCSV = function() {
+  const users = Object.entries(DEMO.users);
+  const csv = "Имя,Телефон,Потрачено,Скидка,Уровень\n" + users.map(([phone,u])=>`${u.name},${phone},${u.totalSpent},${getDiscount(u)}%,${getLevelData(u).current.name}`).join("\n");
+  const a = document.createElement("a"); a.href = "data:text/csv;charset=utf-8,"+encodeURIComponent(csv); a.download="clients.csv"; a.click();
+};
+
+// ============================================================
+// MODALS
+// ============================================================
+window.openModal = function(name) { document.getElementById("modal-"+name).classList.add("open"); };
+window.closeModal = function(name) { document.getElementById("modal-"+name).classList.remove("open"); };
+
+// ============================================================
+// TOAST
+// ============================================================
+let toastTimer = null;
+window.showToast = function(msg, type="") {
+  const el = document.getElementById("toast");
+  el.textContent = msg; el.className = "toast show " + type;
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove("show"), 3000);
+};
+
+// ============================================================
+// CONFETTI
+// ============================================================
+function fireConfetti() {
+  const canvas = document.getElementById("confetti-canvas");
+  const ctx = canvas.getContext("2d");
+  canvas.width = innerWidth; canvas.height = innerHeight;
+  let particles = Array.from({length:80}, () => ({
+    x: Math.random()*canvas.width, y: -10, vx: (Math.random()-0.5)*6, vy: Math.random()*4+2,
+    w: Math.random()*8+4, h: Math.random()*4+3, a: Math.random()*Math.PI*2,
+    va: (Math.random()-0.5)*0.2, color: ["#c8a96e","#e8c98e","#5cb87a","#5c8fe0","#ffffff"][Math.floor(Math.random()*5)]
+  }));
+  let frame;
+  function animate() {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    particles = particles.filter(p => p.y < canvas.height+20);
+    particles.forEach(p => {
+      p.x += p.vx; p.y += p.vy; p.a += p.va; p.vy += 0.1;
+      ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.a); ctx.fillStyle=p.color;
+      ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h); ctx.restore();
+    });
+    if (particles.length) frame = requestAnimationFrame(animate);
+    else { ctx.clearRect(0,0,canvas.width,canvas.height); }
+  }
+  animate();
+}
+
+// ============================================================
+// INIT
+// ============================================================
+function init() {
+  const phone = localStorage.getItem("damdym_phone");
+  const pass = localStorage.getItem("damdym_pass");
+  if (sessionStorage.getItem("damdym_admin")) { state.adminLoggedIn = true; goTo("admin"); return; }
+  if (phone && pass) {
+    const u = DEMO.users[phone];
+    if (u && u.password === pass) {
+      state.currentUser = phone; state.userData = {...u, phone};
+      initHookahs(); goTo("home"); return;
+    }
+  }
+  goTo("auth");
+  // Init order screen
+  setTimeout(() => {
+    renderOrderStep1();
+    renderHookahConfigs();
+  }, 500);
+}
+
+init();
+</script>
+</body>
+</html>
