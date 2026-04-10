@@ -880,7 +880,7 @@ function subscribeOrders() {
   const { collection, query, orderBy, onSnapshot } = window.__firebase;
   onSnapshot(query(collection(window.__db,'orders'), orderBy('createdAt','desc')), snap=>{
     const prev = ALL_ORDERS.length;
-    ALL_ORDERS = snap.docs.map(d=>({id:d.id,...d.data()}));
+    ALL_ORDERS = snap.docs.map(d=>({...d.data(), id:d.id}));
     if (prev > 0 && ALL_ORDERS.length > prev) playSound();
     renderAll();
   });
@@ -1033,7 +1033,7 @@ function orderRow(o, compact) {
     <td><button class="act-btn" onclick="openOrder('${o.id}')">Открыть</button></td>
   </tr>`;
   return `<tr>
-    <td style="font-size:12px;color:var(--text3)">${o.id.slice(-6)}</td>
+    <td style="font-size:12px;color:var(--text3)">${(o.id || 'Без ID').toString().slice(-6)}</td>
     <td><b style="font-size:13px">${o.name||'—'}</b></td>
     <td><a href="${waLink}" target="_blank" style="color:var(--blue);font-size:12px;text-decoration:none">${phone}</a></td>
     <td>${o.tariffName||o.tariff||'—'}</td>
@@ -1057,7 +1057,7 @@ function openOrder(id) {
   if (!o) return;
   const si = STATUS_LABELS[o.status]||{label:o.status,cls:'badge-new'};
   const dt = o.createdAt ? new Date(o.createdAt).toLocaleString('ru-RU') : '—';
-  document.getElementById('mod-title').textContent = 'Заказ #' + id.slice(-6);
+  document.getElementById('mod-title').textContent = 'Заказ #' + (id || '???').toString().slice(-6);
   document.getElementById('mod-body').innerHTML = `
     <div class="modal-row"><span class="modal-row-label">Клиент</span><span class="modal-row-val">${o.name||'—'}</span></div>
     <div class="modal-row"><span class="modal-row-label">Телефон</span><span class="modal-row-val">${o.phone||'—'}</span></div>
